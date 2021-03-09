@@ -12,6 +12,7 @@ import constants as c
 
 simulation = SIMULATION()
 
+simulation.run()
 
 # #load floor and robot body
 # planeId = p.loadURDF("plane.urdf")
