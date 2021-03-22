@@ -1,5 +1,5 @@
 import math
-
+import numpy
 import pybullet
 
 import pyrosim.pyrosim as pyrosim
@@ -8,7 +8,7 @@ import pyrosim.constants as c
 
 class NEURON: 
 
-    def __init__(self,line):
+    def __init__(self, line):
 
         self.Determine_Name(line)
 
@@ -20,9 +20,9 @@ class NEURON:
 
         self.Set_Value(0.0)
 
-    def Add_To_Value( self, value ):
+    def Add_To_Value(self, value):
 
-        self.Set_Value( self.Get_Value() + value )
+        self.Set_Value(self.Get_Value() + value)
 
     def Get_Joint_Name(self):
 
@@ -62,13 +62,26 @@ class NEURON:
 
         # print("")
 
-    def Set_Value(self,value):
-
+    def Set_Value(self, value):
         self.value = value
 
+    def Update_Sensor_Neuron(self):
+        self.Set_Value(pyrosim.Get_Touch_Sensor_Value_For_Link(self.Get_Link_Name()))
+
+    def Update_Hidden_Or_Motor_Neuron(self, neurons, synapses):
+        self.Set_Value(0)
+        for i in synapses.keys():
+            if self.Get_Name() == i[1]:
+                self.Allow_Presynaptic_Neuron_To_Influence_Me(synapses[i].Get_Weight(),
+                neurons[i[0]].Get_Value())
+        self.Threshold()
+
+    def Allow_Presynaptic_Neuron_To_Influence_Me(self, weight, preSynValue):
+        value = weight * preSynValue
+        self.Add_To_Value(value)
 # -------------------------- Private methods -------------------------
 
-    def Determine_Name(self,line):
+    def Determine_Name(self, line):
 
         if "name" in line:
 
@@ -76,48 +89,37 @@ class NEURON:
 
             self.name = splitLine[1]
 
-    def Determine_Type(self,line):
-
+    def Determine_Type(self, line):
         if "sensor" in line:
 
             self.type = c.SENSOR_NEURON
-
         elif "motor" in line:
 
             self.type = c.MOTOR_NEURON
-
         else:
 
             self.type = c.HIDDEN_NEURON
 
     def Print_Name(self):
-
        print(self.name)
 
     def Print_Type(self):
-
        print(self.type)
 
     def Print_Value(self):
-
        print(self.value , " " , end="" )
 
     def Search_For_Joint_Name(self,line):
-
         if "jointName" in line:
-
             splitLine = line.split('"')
 
             self.jointName = splitLine[5]
 
     def Search_For_Link_Name(self,line):
-
         if "linkName" in line:
-
             splitLine = line.split('"')
 
             self.linkName = splitLine[5]
 
     def Threshold(self):
-
         self.value = math.tanh(self.value)

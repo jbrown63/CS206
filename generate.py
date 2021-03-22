@@ -1,54 +1,55 @@
 import pyrosim.pyrosim as pyrosim
+#pyrosim.Start_SDF("world.sdf")
 
 
-# x1 = 0
-# y1 = 0
-# z1 = 0.5
-# x2 = 0
-# y2 = 1
-# z2 = 1.5
 
-# code for 6x6 of stack of blocks decreasing in size
-# for a in range(0, 6):
-#   for b in range(0, 6):
-#      for i in range(11, 1, -1):
-#         pyrosim.Send_Cube(name="Box", pos=[a, b,((-i+11.5)*.9)],
-#                  size=[(i*0.9)/10, (i*0.9)/10, (i*0.9)/10])
-
-
-# create world
 def Create_World():
     pyrosim.Start_SDF("world.sdf")
-    # create cube away from center
-    pyrosim.Send_Cube(name="Box", pos=[4, 0, .5], size=[1, 1, 1])
+    length = 1
+    width = 1
+    height = 1
+    x = 2
+    y = 2
+    z = 0.5
+    pyrosim.Send_Cube(name="Box", pos=[x, y, z], size=[length, width, height])
     pyrosim.End()
 
-
-# create robot
-def Create_Robot():
+def Generate_Body():
     pyrosim.Start_URDF("body.urdf")
-    # create back leg
-    pyrosim.Send_Cube(name="BackLeg", pos=[-0.5, 0, -0.5], size=[1, 1, 1])
+    length = 1
+    width = 1
+    height = 1
 
-    # create joint between back leg and torso
-    pyrosim.Send_Joint(name="Torso_BackLeg",
-                       parent="Torso", child="BackLeg",
-                       type="revolute", position="0.5 0 1")
+    pyrosim.Send_Cube(name="Torso", pos=[0, 0, 1.5], size=[length, width, height])
+    pyrosim.Send_Joint(name="Torso_FrontLeg", parent="Torso", child="Front_Leg", type="revolute", position="0.5 0 1")
+    pyrosim.Send_Cube(name="Front_Leg", pos=[0.5, 0, -0.5], size=[length, width, height])
+    pyrosim.Send_Joint(name="Torso_BackLeg", parent="Torso", child="Back_Leg", type="revolute", position="-0.5 0 1")
+    pyrosim.Send_Cube(name="Back_Leg", pos=[-0.5, 0, -0.5], size=[length, width, height])
+    pyrosim.End()
 
-    # create torso
-    pyrosim.Send_Cube(name="Torso", pos=[1, 0, 1.5], size=[1, 1, 1])
+def Generate_Brain():
+    pyrosim.Start_NeuralNetwork("brain.nndf")
 
-    # create joint between front leg and torso
-    pyrosim.Send_Joint(name="Torso_FrontLeg",
-                       parent="Torso", child="FrontLeg",
-                       type="revolute", position="1.5 0 1")
+    pyrosim.Send_Sensor_Neuron(name=0, linkName="Torso")
+    pyrosim.Send_Sensor_Neuron(name=1, linkName="Front_Leg")
+    pyrosim.Send_Sensor_Neuron(name=2, linkName="Back_Leg")
 
-    # create front leg
-    pyrosim.Send_Cube(name="FrontLeg", pos=[0.5, 0, -0.5], size=[1, 1, 1])
+    pyrosim.Send_Motor_Neuron(name=3, jointName="Torso_BackLeg")
+    pyrosim.Send_Motor_Neuron(name=4, jointName="Torso_FrontLeg")
+
+    pyrosim.Send_Synapse(sourceNeuronName=0, targetNeuronName=3, weight=-0.2)
+    pyrosim.Send_Synapse(sourceNeuronName=1, targetNeuronName=3, weight=-0.2)
+    pyrosim.Send_Synapse(sourceNeuronName=0, targetNeuronName=4, weight=-0.5)
+    pyrosim.Send_Synapse(sourceNeuronName=1, targetNeuronName=4, weight=-0.5)
+
+    # pyrosim.Send_Synapse(sourceNeuronName=0, targetNeuronName=3, weight=1)
+    # pyrosim.Send_Synapse(sourceNeuronName=1, targetNeuronName=3, weight=1)
+    # pyrosim.Send_Synapse(sourceNeuronName=0, targetNeuronName=4, weight=0.5)
+    # pyrosim.Send_Synapse(sourceNeuronName=1, targetNeuronName=4, weight=0.5)
 
     pyrosim.End()
 
 
-# function calls
 Create_World()
-Create_Robot()
+Generate_Body()
+Generate_Brain()

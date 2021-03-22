@@ -1,31 +1,34 @@
-import pybullet as p
-import pybullet_data
-import time as t
-import pyrosim.pyrosim as pyrosim
+import constants as c
 from world import WORLD
 from robot import ROBOT
+import pybullet as p
+import pybullet_data
+import time
+import numpy
+import pyrosim.pyrosim as pyrosim
 
 
 class SIMULATION:
     def __init__(self):
-        # connect to service
         self.physicsClient = p.connect(p.GUI)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
-        # instantiate world and robot
         self.world = WORLD()
         self.robot = ROBOT()
 
-        # simulate gravity
-        p.setGravity(0, 0, -9.8)
+        p.setGravity(0, 0, c.Gravity_constant)
+
+
 
     def run(self):
-        # loop through to run simulation
-        for i in range(0, 1000):
+
+        for i in range(0, c.Steps_constant):
             p.stepSimulation()
-            self.robot.sense(i)
-            self.robot.act(i)
-            t.sleep(1 / 10)
+            self.robot.Sense(i)
+            self.robot.Think()
+            self.robot.Act(i)
+
+            time.sleep(1/30)
 
     def __del__(self):
         p.disconnect()
