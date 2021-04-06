@@ -1,20 +1,24 @@
 import numpy
+import math
+import constants as c
 
-amplitude = numpy.pi/4
-frequency = 12
-offset = numpy.pi
+#import variables and vectors
 
-FL_amplitude = numpy.pi/4
-FL_frequency = 12
-FL_phaseOffset = -numpy.pi
+frontLegSensorValues = numpy.zeros(1000)
+backLegSensorValues = numpy.zeros(1000)
 
-BL_amplitude = numpy.pi/4
-BL_frequency = 6
-BL_phaseOffset = numpy.pi
+FrontAmplitude = -numpy.pi/4
+FrontFrequency = 20
+FrontPhaseOffset = 0
 
-Gravity_constant = -9.8
+BackAmplitude = numpy.pi/5
+BackFrequency = 10
+BackPhaseOffset = 0
 
-Steps_constant = 1000
+FrontLegtargetAngles = numpy.linspace(-numpy.pi, numpy.pi, 1000)
 
-s = 2 #number of sensors on robot
-m = 2 #number of motors on robot
+BackLegtargetAngles = numpy.linspace(-numpy.pi, numpy.pi, 1000)
+
+numberOfGenerations = 10
+
+populationSize = 10
