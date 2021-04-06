@@ -6,7 +6,8 @@ import time as t
 #from simulate import directOrGUI
 
 class SIMULATION:
-    def __init__(self, directOrGUI):
+    def __init__(self, directOrGUI, solutionID):
+        self.directOrGUI = directOrGUI
 
         if directOrGUI == "DIRECT":
             p.connect(p.DIRECT)
@@ -19,19 +20,20 @@ class SIMULATION:
         p.setGravity(0, 0, -9.8)
 
         self.world = WORLD()
-        self.robot = ROBOT()
+        self.robot = ROBOT(solutionID)
 
     def Run(self):
-        for x in range (0, 1000):
+        for x in range (0, 800):
             p.stepSimulation()
             self.robot.Sense(x)
             self.robot.Think()
             self.robot.Act(x)
             # # log for sensor values
-            #t.sleep(1/30)
+            if self.directOrGUI == "GUI":
+                t.sleep(1/200)
 
-    def Get_Fitness(self):
-        self.robot.Get_Fitness()
+    def Get_Fitness(self, solutionID):
+        self.robot.Get_Fitness(solutionID)
 
 
 def __del__(self):
